@@ -20,6 +20,74 @@ def generate_population(n):
         pop.append(generate_individual())
     return pop
 # %%
+
+def euclidean_distance(individual):
+    resultW=resultWeierstrass(individual)
+    score=0
+    for element in resultW:
+        score+=pow(element[1]-element[2],2)
+    return sqrt(score)
+
+def resultWeierstrass(individual):
+    tab=[]
+    with open("temperature_sample.csv",'r') as file:
+        tabLines=file.read().splitlines()
+        tabLines.pop(0) #delete first line with i and t
+        for element in tabLines:
+            i=float(element.split(";")[0])
+            t=float(element.split(";")[1])
+            tgenerate=weierstrassFunct(individual,i)
+            IRG=[i,t,tgenerate]
+            tab.append(IRG)
+    return tab
+
+def weierstrassFunct(individual,i):
+    result=0
+    for k in range(int(individual[2])):
+        result+=pow(individual[0],k)*cos(individual[1]*pi*i)
+    return result
+
+def fitness(individual):
+    return euclidean_distance(individual)
+
+def select(population):
+    indi=population[0]
+    fitness_score=fitness(population[0])
+    for individual in population:
+        if fitness_score>fitness(individual):
+            fitness_score=fitness(individual)
+            indi=individual
+    return indi
+
+def crossover(population):
+    popuCrossover=[]
+    gene=select(population)
+    for i in range(1,len(population)):
+        #newIndi=gene if rd.choice([True,False]) else population[i]
+        crossoverA=gene[0] if rd.choice([True,False]) else population[i][0]
+        crossoverB=gene[1] if rd.choice([True,False]) else population[i][1]
+        crossoverC=gene[2] if rd.choice([True,False]) else population[i][2]
+        newIndi=[crossoverA,crossoverB,crossoverC]
+        popuCrossover.append(newIndi)
+    return popuCrossover
+
+def mutation(population):
+    for individual in population:
+        index=rd.randint(0,2)
+        if(index==0):
+            individual[0]=rd.random()
+        elif(index==1):
+            individual[1]=rd.randint(1,20)
+        else:
+            individual[2]=rd.randint(1,20)
+
+def fillpop(population):
+    populationNew=[]
+    populationNew.append(select(population))
+    populationNew.extend(crossover(population))
+    mutation(populationNew)
+    return populationNew
+"""
 def fitness_score(population):
     for individual in population:
         score=euclidean_distance(individual)
@@ -111,17 +179,15 @@ def sumScore(popN):
     for i in range(len(popN)):
         scoreS+=popN[i][3]
     return scoreS/len(popN)
+"""
 def init():
-    Population=generate_population(50)
-    popN=fillpop(Population) 
+    population=generate_population(10)
     i=0
-    print(popN)
-    while(sumScore(popN)>2):
-        popN=fillpop(popN)
+    while(fitness(population[0])>1):
+        population=fillpop(population)
         i+=1
-        print(i)
-    showAll(popN)
-    
+        #print(fitness(population[0]))    
+        print(population[0])
 # %% main
 if __name__=="__main__" :
     init()
