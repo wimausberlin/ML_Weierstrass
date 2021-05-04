@@ -108,7 +108,7 @@ def init():
         else:
             count=0
             individualBefore=evaluation[0]        
-        if(fitness(evaluation[0])<0.02 or count>20):
+        if(fitness(evaluation[0])<0.04):# or count>20):
             solutionFound=True
         else:
             population=fillpop(evaluation)
